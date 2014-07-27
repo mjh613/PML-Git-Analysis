@@ -1,0 +1,36 @@
+Title
+========================================================
+
+### How I built the model
+1. Created 4 crossvalidation samples (10% each) from the training set.
+1. Then created a working training set from the samples that did NOT contain any of the data in the cross-validation samples.
+1. I removed all columns that were characters or had no variance
+1. Did a principal components analysis to determine the components that would be needed to predict 95% of the data, which resulted in 27 components.
+1. I created a transformed training set (trainpc) using the 27 components.
+1. I ran a "random forests" model to find the best model fit.
+
+### Use of cross-validation
+1. I used the final model from the rf to predict on the four cross validation training sets I created at the beginning.
+
+### Out of sample error
+1. Based on the test set, I loaded the 
+
+
+### Predicting 20 cases
+
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring web pages (click the **Help** toolbar button for more details on using R Markdown).
+
+When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r fig.width=7, fig.height=6}
+plot(cars)
+```
+
