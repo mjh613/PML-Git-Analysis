@@ -24,16 +24,18 @@ for(i in 1:length(train)) {
 }
 keep[1:5] <- 0 #throws out the X, timestamp columns
 keep[length(keep)] <- 1 #so that it keeps the predictor variable classe
+
 trainnum <- train[,which(as.logical(keep))]#keep only the columns I want
-
 trainnumm <- as.data.frame(lapply(trainnum,as.numeric))
-trainnumm$"classe" <- factor(trainnum$"classe") #return classe variable to be a factor
+trainnumm$"classe" <- trainnum$"classe"
+trainnumm$"classe" <- factor(trainnumm$"classe") #return classe variable to be a factor
 
+###THIS WAS A BAD IDEA. DON"T USE THE PCA STUFF, AS RF WILL DO IT FOR YOU.###
 #use PCA to figure out how many predictors can explain 95% of the data
-preProc <- preProcess(x=trainnumm[,-length(trainnumm)],outcome=trainnum$"classe",method="pca",thresh=0.95)
+#preProc <- preProcess(x=trainnumm[,-length(trainnumm)],outcome=trainnum$"classe",method="pca",thresh=0.95)
 
 #use that now to get a preprocessed training set
-trainpc <- predict(preProc,trainnumm[,-length(trainnumm)])
+#trainpc <- predict(preProc,trainnumm[,-length(trainnumm)])
 
 #set up parallel processing
 library(doParallel)
@@ -42,4 +44,15 @@ registerDoParallel(cl)
 
 #random forest
 library(randomForest)
-modelFit <- train(trainnumm$"classe"~.,method="rf",data=trainpc,prox=TRUE)
+#I originally had used caret's train but it works very slowly apparently
+#modelFit <- train(trainnumm$"classe"~.,method="rf",data=trainpc,prox=TRUE)
+#Better to use randomForest()
+
+#But I also realized that I should be training on the non-PCA data (once I realized that was causing issues for using the predict function in cross-validation)
+#modelFit <- randomForest(trainnumm$"classe"~.,data=trainpc,importance=TRUE,keep.forest=TRUE)
+modelFit2 <- randomForest(trainnumm$"classe"~.,data=trainnumm[-length(trainnumm)],importance=TRUE,keep.forest=TRUE)
+
+#find the importance
+importance(modelFit2)
+#and accuracy
+confusionMatrix(modelFit2$predicted,trainnumm$"classe")
